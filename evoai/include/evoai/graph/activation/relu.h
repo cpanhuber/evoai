@@ -12,10 +12,11 @@ struct RelU
     RelU() = default;
     RelU(ValueType p_k, ValueType p_d) : k{p_k}, d{p_d} {}
 
-    template <int32_t N>
-    Vector<N> operator()(Vector<N> const& x) const
+    template <typename Derived>
+    auto operator()(MatrixBase<Derived> const& x) const
+        -> decltype(((ValueType() * x).array() + ValueType()).cwiseMax(ValueType()).matrix())
     {
-        return Vector<N>{((k * x).array() + d).cwiseMax(static_cast<ValueType>(0))};
+        return ((k * x).array() + d).cwiseMax(static_cast<ValueType>(0)).matrix();
     }
 
     ValueType k = 1.0;

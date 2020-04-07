@@ -3,17 +3,21 @@
 
 #include <Eigen/Dense>
 
-#include <cstddef>
+#include <cstdint>
 
 namespace evoai
 {
 using ValueType = double;
+using IndexType = int32_t;
 
-template <size_t N>
+template <IndexType N>
 using Vector = Eigen::Matrix<ValueType, N, 1>;
 
-template <size_t N, size_t M>
+template <IndexType N, IndexType M>
 using Matrix = Eigen::Matrix<ValueType, N, M>;
+
+template <typename Derived>
+using MatrixBase = Eigen::MatrixBase<Derived>;
 
 }  // namespace evoai
 
