@@ -23,7 +23,6 @@ struct RelU : public detail::ActivationFunction
 
     template <typename Derived>
     auto operator()(MatrixBase<Derived> const& x) const
-        -> decltype(((ValueType() * x).array() + ValueType()).cwiseMax(ValueType()).matrix())
     {
         return ((k * x).array() + d).cwiseMax(static_cast<ValueType>(0)).matrix();
     }
