@@ -7,7 +7,16 @@ namespace evoai
 {
 namespace activation
 {
-struct RelU
+
+namespace detail
+{
+struct ActivationFunction
+{
+    static constexpr bool k_is_activation_function = true;
+};
+}  // namespace detail
+
+struct RelU : public detail::ActivationFunction
 {
     RelU() = default;
     RelU(ValueType p_k, ValueType p_d) : k{p_k}, d{p_d} {}
