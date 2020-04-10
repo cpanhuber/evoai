@@ -1,6 +1,7 @@
 #include <evoai/graph/activation/log_softmax.h>
 #include <evoai/graph/activation/normalize_max.h>
 #include <evoai/graph/activation/relu.h>
+#include <evoai/graph/activation/softmax.h>
 
 #include <evoai/common/types.h>
 
@@ -23,6 +24,20 @@ TEST(RelU, call_WhenInactiveAmbivalentActive)
     EXPECT_NEAR(static_cast<ValueType>(0.0), result(0), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(0.0), result(1), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(1.0), result(2), tolerance);
+}
+
+TEST(Softmax, call_WhenTypical)
+{
+    activation::Softmax softmax;
+    Vector<3> x;
+    x << 3.0, 1.0, 0.2;
+
+    auto result = softmax(x);
+
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(static_cast<ValueType>(0.8360188), result(0), tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.11314284), result(1), tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.05083836), result(2), tolerance);
 }
 
 TEST(LogSoftmax, call_WhenTypical)
