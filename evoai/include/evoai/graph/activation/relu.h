@@ -2,21 +2,14 @@
 #define EVOAI__GRAPH__ACTIVATION__RELU_H
 
 #include <evoai/common/types.h>
+#include <evoai/graph/activation/activator.h>
 
 namespace evoai
 {
 namespace activation
 {
 
-namespace detail
-{
-struct ActivationFunction
-{
-    static constexpr bool k_is_activation_function = true;
-};
-}  // namespace detail
-
-struct RelU : public detail::ActivationFunction
+struct RelU : public detail::Activator
 {
     RelU() = default;
     RelU(ValueType p_k, ValueType p_d) : k{p_k}, d{p_d} {}
