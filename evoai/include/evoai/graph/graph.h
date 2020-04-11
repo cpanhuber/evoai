@@ -2,7 +2,8 @@
 #define EVOAI__GRAPH__GRAPH_H
 
 #include <evoai/common/types.h>
-#include <evoai/graph/aggregation/aggregator.h>
+#include <evoai/graph/aggregation/accumulator.h>
+#include <evoai/graph/aggregation/counter.h>
 
 #include <cstddef>
 

@@ -16,10 +16,9 @@ cc_library(
     copts = ["-Wall", "-Werror", "--pedantic"],
     strip_include_prefix = "include/",
 )
-
 cc_test(
     name = "evoai_spec",
-    srcs = glob(["test/*.cpp"]),
+    srcs = glob(["test/*.cpp", "test/**/*.h"]),
     deps = [
         "@gtest//:gtest_main",
         ":evoai_lib",
