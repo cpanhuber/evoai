@@ -14,6 +14,72 @@ namespace
 
 using namespace evoai;
 
+class ActivationTrackerFixture : public ::testing::Test
+{
+  public:
+    using ActivationTracker = detail::ActivationTracker<4, activation::RelU>;
+    using GraphType = NeuralGraph<2, 1, 1, 2, ActivationTracker, aggregation::Accumulator, activation::RelU>;
+    void SetUp()
+    {
+        adjacency(2, 0) = 1.0;
+        adjacency(2, 1) = 1.5;
+        adjacency(3, 2) = 2.0;
+    }
+    GraphType::AdjacencyType adjacency = GraphType::Traits::AdjacencyType::Zero();
+    ActivationTracker tracker;
+    Vector<GraphType::k_input_neurons> input;
+};
+
+TEST_F(ActivationTrackerFixture, ActivationTracker_WhenNoActivations)
+{
+    input << -1.0, -2.0;
+    detail::Predict<GraphType>(input, adjacency, tracker);
+
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(0), tolerance);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(1), tolerance);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(2), tolerance);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(3), tolerance);
+}
+
+TEST_F(ActivationTrackerFixture, ActivationTracker_WhenSomeActivations)
+{
+    input << 1.0, 0.0;
+    detail::Predict<GraphType>(input, adjacency, tracker);
+
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(0), tolerance);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(1), tolerance);
+    EXPECT_NEAR(2.0, tracker.accumulated_activations(2), tolerance);
+    EXPECT_NEAR(2.0, tracker.accumulated_activations(3), tolerance);
+}
+
+TEST_F(ActivationTrackerFixture, ActivationTracker_WhenAllActivations)
+{
+    input << 1.0, 2.0;
+    detail::Predict<GraphType>(input, adjacency, tracker);
+
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(0), tolerance);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(1), tolerance);
+    EXPECT_NEAR(8.0, tracker.accumulated_activations(2), tolerance);
+    EXPECT_NEAR(8.0, tracker.accumulated_activations(3), tolerance);
+}
+
+TEST_F(ActivationTrackerFixture, ActivationTracker_WhenRecursiveActivations)
+{
+    adjacency(2, 2) = 1.0;
+
+    input << 1.0, 2.0;
+    detail::Predict<GraphType>(input, adjacency, tracker);
+
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(0), tolerance);
+    EXPECT_NEAR(0.0, tracker.accumulated_activations(1), tolerance);
+    EXPECT_NEAR(12.0, tracker.accumulated_activations(2), tolerance);
+    EXPECT_NEAR(8.0, tracker.accumulated_activations(3), tolerance);
+}
+
 TEST(Population, CreatePopulation)
 {
     mutation::Tingri tingri;

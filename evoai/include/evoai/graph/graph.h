@@ -100,9 +100,9 @@ struct PredictCycle<0,
 
 template <typename GraphTraits>
 typename GraphTraits::OutputType Predict(typename GraphTraits::InputType const& input,
-                                         typename GraphTraits::AdjacencyType const& adjacency)
+                                         typename GraphTraits::AdjacencyType const& adjacency,
+                                         typename GraphTraits::ActivationFunctionType& activator)
 {
-    auto activator = typename GraphTraits::ActivationFunctionType{};
     auto aggregator = typename GraphTraits::AggregatorType{};
     auto transformator = typename GraphTraits::TransformatorType{};
 
@@ -129,6 +129,15 @@ typename GraphTraits::OutputType Predict(typename GraphTraits::InputType const& 
                         typename GraphTraits::TransformatorType>{}(
         scaled_input, intermediate, adjacency, aggregated, activator, aggregator, transformator);
 }
+
+template <typename GraphTraits>
+typename GraphTraits::OutputType Predict(typename GraphTraits::InputType const& input,
+                                         typename GraphTraits::AdjacencyType const& adjacency)
+{
+    auto activator = typename GraphTraits::ActivationFunctionType{};
+    return Predict<GraphTraits>(input, adjacency, activator);
+}
+
 }  // namespace detail
 
 template <IndexType InputN,
