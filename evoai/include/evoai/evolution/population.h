@@ -18,9 +18,10 @@ struct Specimen : Properties
     ValueType mutancy;
     typename Traits::AdjacencyType adjacency;
 };
-}  // namespace detail
 template <typename GraphType, typename Properties>
 using Population = std::vector<detail::Specimen<GraphType, Properties>>;
+
+}  // namespace detail
 
 }  // namespace evoai
 

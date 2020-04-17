@@ -155,7 +155,7 @@ struct Tingri
     }
 
     template <typename GraphType, typename RandomGenerator>
-    evoai::detail::Specimen<GraphType, Properties> CreateSpecimen(RandomGenerator& generator)
+    evoai::detail::Specimen<GraphType, Properties> CreateSpecimen(RandomGenerator& generator) const
     {
         evoai::detail::Specimen<GraphType, Properties> specimen;
         specimen.mutancy =

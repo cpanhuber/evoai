@@ -24,13 +24,23 @@ struct ActivationTracker : public ActivationFunctionType
     aggregation::Counter aggregator;
 };
 
-}  // namespace detail
-
-template <typename GraphType, typename Properties>
-Population<GraphType, Properties> CreateRandomPopulation()
+template <typename GraphType, typename MutationStrategy, typename GeneratorType>
+Population<GraphType, typename MutationStrategy::Properties> CreatePopulation(IndexType const n,
+                                                                              MutationStrategy const& strategy,
+                                                                              GeneratorType& generator)
 {
-    Population<GraphType, Properties> population;
+    using PopulationType = Population<GraphType, typename MutationStrategy::Properties>;
+    PopulationType population{};
+    population.resize(n);
+
+    std::for_each(population.begin(), population.end(), [&generator, &strategy](auto& specimen) {
+        specimen = strategy.template CreateSpecimen<GraphType>(generator);
+    });
+
+    return population;
 }
+
+}  // namespace detail
 
 }  // namespace evoai
 
