@@ -42,6 +42,38 @@ Population<GraphType, typename MutationStrategy::Properties> CreatePopulation(In
     return population;
 }
 
+template <typename Loss, typename Properties, typename GraphType, typename InputDerived, typename TruthDerived>
+std::tuple<std::vector<ValueType>, std::vector<Vector<GraphType::k_total_neurons>>> Score(
+    Population<GraphType, Properties> const population_in,
+    MatrixBase<InputDerived> const& input,
+    MatrixBase<TruthDerived> const& truth)
+{
+    std::vector<ValueType> scores;
+    scores.reserve(population_in.size());
+    std::vector<Vector<GraphType::k_total_neurons>> activations;
+    activations.reserve(population_in.size());
+
+    std::for_each(population_in.begin(), population_in.end(), [&truth, &input, &scores, &activations](auto& specimen) {
+        Loss loss;
+        using ActivationTrackerType =
+            ActivationTracker<GraphType::k_total_neurons, typename GraphType::ActivationFunctionType>;
+        using Traits = GraphTraits<GraphType::k_input_neurons,
+                                   GraphType::k_output_neurons,
+                                   GraphType::k_hidden_neurons,
+                                   GraphType::k_forward_iterations,
+                                   ActivationTrackerType,
+                                   typename GraphType::AggregatorType,
+                                   typename GraphType::TransformatorType>;
+
+        ActivationTrackerType tracker;
+        auto prediction = detail::Predict<Traits>(input, specimen.adjacency, tracker);
+        scores.push_back(loss(prediction, truth));
+        activations.push_back(tracker.accumulated_activations);
+    });
+
+    return {scores, activations};
+}
+
 }  // namespace detail
 
 }  // namespace evoai
