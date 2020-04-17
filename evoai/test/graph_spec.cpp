@@ -51,7 +51,7 @@ TEST_F(GraphFixture, SinglePass)
     auto tolerance = static_cast<ValueType>(1e-5);
     EXPECT_NEAR(static_cast<ValueType>(0), result(0), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(0), result(1), tolerance);
-    EXPECT_NEAR(static_cast<ValueType>(0), result(2), tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(-0.08), result(2), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(0.14), result(3), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(0.04), result(4), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(0.38), result(5), tolerance);

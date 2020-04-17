@@ -18,7 +18,7 @@ class ActivationTrackerFixture : public ::testing::Test
 {
   public:
     using ActivationTracker = detail::ActivationTracker<4, activation::RelU>;
-    using GraphType = NeuralGraph<2, 1, 1, 2, ActivationTracker, aggregation::Accumulator, activation::RelU>;
+    using GraphType = NeuralGraph<2, 1, 1, 3, ActivationTracker, aggregation::Accumulator, activation::RelU>;
     void SetUp()
     {
         adjacency(2, 0) = 1.0;
@@ -48,7 +48,7 @@ TEST_F(ActivationTrackerFixture, ActivationTracker_WhenSomeActivations)
     detail::Predict<GraphType>(input, adjacency, tracker);
 
     auto tolerance = static_cast<ValueType>(1e-5);
-    EXPECT_NEAR(0.0, tracker.accumulated_activations(0), tolerance);
+    EXPECT_NEAR(3.0, tracker.accumulated_activations(0), tolerance);
     EXPECT_NEAR(0.0, tracker.accumulated_activations(1), tolerance);
     EXPECT_NEAR(2.0, tracker.accumulated_activations(2), tolerance);
     EXPECT_NEAR(2.0, tracker.accumulated_activations(3), tolerance);
@@ -60,8 +60,8 @@ TEST_F(ActivationTrackerFixture, ActivationTracker_WhenAllActivations)
     detail::Predict<GraphType>(input, adjacency, tracker);
 
     auto tolerance = static_cast<ValueType>(1e-5);
-    EXPECT_NEAR(0.0, tracker.accumulated_activations(0), tolerance);
-    EXPECT_NEAR(0.0, tracker.accumulated_activations(1), tolerance);
+    EXPECT_NEAR(3.0, tracker.accumulated_activations(0), tolerance);
+    EXPECT_NEAR(6.0, tracker.accumulated_activations(1), tolerance);
     EXPECT_NEAR(8.0, tracker.accumulated_activations(2), tolerance);
     EXPECT_NEAR(8.0, tracker.accumulated_activations(3), tolerance);
 }
@@ -74,8 +74,8 @@ TEST_F(ActivationTrackerFixture, ActivationTracker_WhenRecursiveActivations)
     detail::Predict<GraphType>(input, adjacency, tracker);
 
     auto tolerance = static_cast<ValueType>(1e-5);
-    EXPECT_NEAR(0.0, tracker.accumulated_activations(0), tolerance);
-    EXPECT_NEAR(0.0, tracker.accumulated_activations(1), tolerance);
+    EXPECT_NEAR(3.0, tracker.accumulated_activations(0), tolerance);
+    EXPECT_NEAR(6.0, tracker.accumulated_activations(1), tolerance);
     EXPECT_NEAR(12.0, tracker.accumulated_activations(2), tolerance);
     EXPECT_NEAR(8.0, tracker.accumulated_activations(3), tolerance);
 }

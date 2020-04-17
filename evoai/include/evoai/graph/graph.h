@@ -17,7 +17,7 @@ auto SinglePass(MatrixBase<DerivedIn> const& input,
                 MatrixBase<DerivedAdjacency> const& adjacency_matrix,
                 ActivationFunctionType& activation_function)
 {
-    return activation_function(adjacency_matrix * input);
+    return adjacency_matrix * activation_function(input);
 }
 
 template <IndexType Iteration,
