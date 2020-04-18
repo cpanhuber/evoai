@@ -151,4 +151,41 @@ TEST(Evolution, Fitness)
     EXPECT_NEAR(static_cast<ValueType>(0.0), fitness[3], tolerance);
 }
 
+TEST(Evolution, Select)
+{
+    using ActivationTracker = detail::ActivationTracker<4, activation::RelU>;
+    using GraphType = NeuralGraph<2, 1, 1, 3, ActivationTracker, aggregation::Accumulator, activation::RelU>;
+    detail::Scores fitness{0.3, 0.4, 0.4, 0.8, 0.1};
+    detail::Population<GraphType, mutation::Tingri::Properties> population_in;
+    population_in.resize(5);
+    population_in[0].mutancy = static_cast<ValueType>(0.0);
+    population_in[1].mutancy = static_cast<ValueType>(1.0);
+    population_in[2].mutancy = static_cast<ValueType>(2.0);
+    population_in[3].mutancy = static_cast<ValueType>(3.0);
+    population_in[4].mutancy = static_cast<ValueType>(4.0);
+    detail::ActivationSummary<4> activation_summary;
+    activation_summary.resize(5);
+    activation_summary[0].fill(0.0);
+    activation_summary[1].fill(1.0);
+    activation_summary[2].fill(2.0);
+    activation_summary[3].fill(3.0);
+    activation_summary[4].fill(4.0);
+
+    auto [population_out, activations_out] = Select(population_in, activation_summary, fitness);
+
+    // 2, 3, 3, 0, 1
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(static_cast<ValueType>(2.0), population_out[0].mutancy, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(3.0), population_out[1].mutancy, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(3.0), population_out[2].mutancy, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.0), population_out[3].mutancy, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(1.0), population_out[4].mutancy, tolerance);
+
+    EXPECT_NEAR(static_cast<ValueType>(2.0), activations_out[0](0), tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(3.0), activations_out[1](0), tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(3.0), activations_out[2](0), tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.0), activations_out[3](0), tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(1.0), activations_out[4](0), tolerance);
+}
+
 }  // namespace

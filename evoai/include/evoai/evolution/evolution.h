@@ -6,6 +6,8 @@
 #include <evoai/graph/aggregation/accumulator.h>
 #include <evoai/graph/graph.h>
 
+#include <numeric>
+
 namespace evoai
 {
 
@@ -89,6 +91,45 @@ inline Scores Fitness(Scores const& losses)
         return static_cast<ValueType>(1.0) - (loss / max);
     });
     return fitness;
+}
+
+template <typename GraphType, typename Properties>
+std::tuple<Population<GraphType, Properties>, ActivationSummary<GraphType::k_total_neurons>> Select(
+    Population<GraphType, Properties> const& population_in,
+    ActivationSummary<GraphType::k_total_neurons> const& activations_in,
+    Scores const& fitness)
+{
+    Population<GraphType, Properties> population_out;
+    ActivationSummary<GraphType::k_total_neurons> activations_out;
+    population_out.reserve(population_in.size());
+    activations_out.reserve(population_in.size());
+    auto const length = std::accumulate(fitness.begin(), fitness.end(), static_cast<ValueType>(0));
+    auto in_index = static_cast<IndexType>(population_in.size() * 0.5);
+    auto out_index = 0;
+    auto const select_interval = length / static_cast<ValueType>(population_in.size());
+    auto cummulative_sum_in = static_cast<ValueType>(0.0);
+    auto cummulative_sum_out = select_interval;
+
+    while (out_index < static_cast<IndexType>(population_in.size()))
+    {
+        if (cummulative_sum_in + fitness[in_index] >= cummulative_sum_out)
+        {
+            population_out.push_back(population_in[in_index]);
+            activations_out.push_back(activations_in[in_index]);
+            cummulative_sum_out += select_interval;
+            out_index++;
+        }
+        else
+        {
+            cummulative_sum_in += fitness[in_index];
+            in_index++;
+            if (in_index >= static_cast<IndexType>(population_in.size()))
+            {
+                in_index = 0;
+            }
+        }
+    }
+    return {population_out, activations_out};
 }
 
 }  // namespace detail
