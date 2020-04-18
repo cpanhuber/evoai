@@ -208,11 +208,49 @@ TEST(Evolution, Mutate)
 
     detail::Mutate(population, tingri, activation_summary, mock_generator);
 
-    auto expected = mutation::detail::SampleNormal(0.5, 0.01, mock_generator);
+    auto expected =
+        mutation::detail::SampleNormal(static_cast<ValueType>(0.5), static_cast<ValueType>(0.01), mock_generator);
     auto tolerance = static_cast<ValueType>(1e-5);
     EXPECT_NEAR(expected, population[0].mutancy, tolerance);
     EXPECT_NEAR(expected, population[0].revive_prior, tolerance);
     EXPECT_NEAR(expected, population[0].kill_prior, tolerance);
+}
+
+TEST(Evolution, Evolve)
+{
+    test::MockRandomGenerator mock_generator;
+    mock_generator.output = 1000000000;  // ~0.24 in uniform([0, 1]) for gcc implementation
+
+    // Graph with one input, one output, one hidden
+    using GraphType = NeuralGraph<1, 1, 1, 2, activation::RelU, aggregation::Accumulator, activation::RelU>;
+    // population with one connected and one unconnected graph
+    detail::Specimen<GraphType, mutation::Tingri::Properties> specimen_connected;
+    specimen_connected.adjacency.fill(static_cast<ValueType>(0.0));
+    specimen_connected.adjacency(1, 0) = static_cast<ValueType>(1.0);
+    specimen_connected.adjacency(2, 1) = static_cast<ValueType>(1.0);
+    specimen_connected.mutancy = 1.0;
+    detail::Specimen<GraphType, mutation::Tingri::Properties> specimen_unconnected;
+    specimen_unconnected.adjacency.fill(static_cast<ValueType>(0.0));
+    detail::Population<GraphType, mutation::Tingri::Properties> population;
+    specimen_unconnected.mutancy = 0.0;
+    population.push_back(specimen_connected);
+    population.push_back(specimen_unconnected);
+
+    // expect the input to activate the output
+    Vector<1> input;
+    input << static_cast<ValueType>(1.0);
+    Vector<1> truth;
+    truth << static_cast<ValueType>(1.0);
+    mutation::Tingri tingri;
+
+    population = detail::Evolve<loss::MeanSquaredError>(population, tingri, input, truth, mock_generator);
+
+    // Expect the unconnected specimen to disappear, two connected mutated ones to remain
+    auto expected =
+        mutation::detail::SampleNormal(static_cast<ValueType>(1.0), static_cast<ValueType>(0.01), mock_generator);
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(expected, population[0].mutancy, tolerance);
+    EXPECT_NEAR(expected, population[1].mutancy, tolerance);
 }
 
 }  // namespace

@@ -85,7 +85,7 @@ std::tuple<Scores, ActivationSummary<GraphType::k_total_neurons>> Score(
 inline Scores Fitness(Scores const& losses)
 {
     Scores fitness;
-    fitness.reserve(losses.size());
+    fitness.resize(losses.size());
     auto max = *std::max_element(losses.begin(), losses.end());
     std::transform(losses.begin(), losses.end(), fitness.begin(), [&max](auto loss) {
         return static_cast<ValueType>(1.0) - (loss / max);
@@ -103,6 +103,7 @@ std::tuple<Population<GraphType, Properties>, ActivationSummary<GraphType::k_tot
     ActivationSummary<GraphType::k_total_neurons> activations_out;
     population_out.reserve(population_in.size());
     activations_out.reserve(population_in.size());
+
     auto const length = std::accumulate(fitness.begin(), fitness.end(), static_cast<ValueType>(0));
     auto in_index = static_cast<IndexType>(population_in.size() * 0.5);
     auto out_index = 0;
@@ -144,6 +145,26 @@ void Mutate(Population<GraphType, typename MutationStrategy::Properties>& popula
         auto const& activations = activation_summary[i];
         strategy(specimen, activations, generator);
     }
+}
+
+template <typename Loss,
+          typename GraphType,
+          typename MutationStrategy,
+          typename InputDerived,
+          typename TruthDerived,
+          typename GeneratorType>
+Population<GraphType, typename MutationStrategy::Properties> Evolve(
+    Population<GraphType, typename MutationStrategy::Properties> const& population_in,
+    MutationStrategy const& strategy,
+    MatrixBase<InputDerived> const& input,
+    MatrixBase<TruthDerived> const& truth,
+    GeneratorType& generator)
+{
+    auto [losses, activations] = Score<Loss>(population_in, input, truth);
+    auto fitness = Fitness(losses);
+    auto [population_out, activations_out] = Select(population_in, activations, fitness);
+    Mutate(population_out, strategy, activations_out, generator);
+    return population_out;
 }
 
 }  // namespace detail
