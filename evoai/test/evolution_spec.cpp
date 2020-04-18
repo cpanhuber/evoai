@@ -138,4 +138,17 @@ TEST_F(EvolutionFixture, Score)
     EXPECT_NEAR(static_cast<ValueType>(8.0), activations[0](3), tolerance);
 }
 
+TEST(Evolution, Fitness)
+{
+    detail::Scores losses{0.0, 3.0, 1.5, 6.0};
+
+    auto fitness = detail::Fitness(losses);
+
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(static_cast<ValueType>(1.0), fitness[0], tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.5), fitness[1], tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.75), fitness[2], tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.0), fitness[3], tolerance);
+}
+
 }  // namespace

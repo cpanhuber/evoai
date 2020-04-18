@@ -80,6 +80,17 @@ std::tuple<Scores, ActivationSummary<GraphType::k_total_neurons>> Score(
     return {scores, activations};
 }
 
+inline Scores Fitness(Scores const& losses)
+{
+    Scores fitness;
+    fitness.reserve(losses.size());
+    auto max = *std::max_element(losses.begin(), losses.end());
+    std::transform(losses.begin(), losses.end(), fitness.begin(), [&max](auto loss) {
+        return static_cast<ValueType>(1.0) - (loss / max);
+    });
+    return fitness;
+}
+
 }  // namespace detail
 
 }  // namespace evoai
