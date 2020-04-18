@@ -116,6 +116,7 @@ std::tuple<Population<GraphType, Properties>, ActivationSummary<GraphType::k_tot
         if (cummulative_sum_in + fitness[in_index] >= cummulative_sum_out)
         {
             population_out.push_back(population_in[in_index]);
+            population_out.back().fitness_score += fitness[in_index];
             activations_out.push_back(activations_in[in_index]);
             cummulative_sum_out += select_interval;
             out_index++;

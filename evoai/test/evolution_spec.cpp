@@ -186,6 +186,12 @@ TEST(Evolution, Select)
     EXPECT_NEAR(static_cast<ValueType>(3.0), activations_out[2](0), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(0.0), activations_out[3](0), tolerance);
     EXPECT_NEAR(static_cast<ValueType>(1.0), activations_out[4](0), tolerance);
+
+    EXPECT_NEAR(static_cast<ValueType>(0.4), population_out[0].fitness_score, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.8), population_out[1].fitness_score, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.8), population_out[2].fitness_score, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.3), population_out[3].fitness_score, tolerance);
+    EXPECT_NEAR(static_cast<ValueType>(0.4), population_out[4].fitness_score, tolerance);
 }
 
 TEST(Evolution, Mutate)
