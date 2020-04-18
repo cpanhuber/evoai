@@ -11,6 +11,12 @@ namespace evoai
 
 namespace detail
 {
+
+template <IndexType N>
+using ActivationSummary = std::vector<Vector<N>>;
+
+using Scores = std::vector<ValueType>;
+
 template <IndexType TotalN, typename ActivationFunctionType>
 struct ActivationTracker : public ActivationFunctionType
 {
@@ -43,14 +49,14 @@ Population<GraphType, typename MutationStrategy::Properties> CreatePopulation(In
 }
 
 template <typename Loss, typename Properties, typename GraphType, typename InputDerived, typename TruthDerived>
-std::tuple<std::vector<ValueType>, std::vector<Vector<GraphType::k_total_neurons>>> Score(
+std::tuple<Scores, ActivationSummary<GraphType::k_total_neurons>> Score(
     Population<GraphType, Properties> const population_in,
     MatrixBase<InputDerived> const& input,
     MatrixBase<TruthDerived> const& truth)
 {
-    std::vector<ValueType> scores;
+    Scores scores;
     scores.reserve(population_in.size());
-    std::vector<Vector<GraphType::k_total_neurons>> activations;
+    ActivationSummary<GraphType::k_total_neurons> activations;
     activations.reserve(population_in.size());
 
     std::for_each(population_in.begin(), population_in.end(), [&truth, &input, &scores, &activations](auto& specimen) {
