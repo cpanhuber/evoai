@@ -188,4 +188,31 @@ TEST(Evolution, Select)
     EXPECT_NEAR(static_cast<ValueType>(1.0), activations_out[4](0), tolerance);
 }
 
+TEST(Evolution, Mutate)
+{
+    test::MockRandomGenerator mock_generator;
+    mock_generator.output = 1000000000;  // ~0.24 in uniform([0, 1]) for gcc implementation
+
+    using GraphType = NeuralGraph<2, 1, 3, 5, activation::RelU, aggregation::Accumulator, activation::RelU>;
+    detail::Specimen<GraphType, mutation::Tingri::Properties> specimen;
+    specimen.mutancy = 0.5;
+    specimen.kill_prior = 0.5;
+    specimen.revive_prior = 0.5;
+    Vector<6> activations;
+    activations << 4.0, 1.0, 0.0, 1.0, 7.0, 5.0;
+    detail::Population<GraphType, mutation::Tingri::Properties> population;
+    population.push_back(specimen);
+    mutation::Tingri tingri;
+    detail::ActivationSummary<6> activation_summary;
+    activation_summary.push_back(activations);
+
+    detail::Mutate(population, tingri, activation_summary, mock_generator);
+
+    auto expected = mutation::detail::SampleNormal(0.5, 0.01, mock_generator);
+    auto tolerance = static_cast<ValueType>(1e-5);
+    EXPECT_NEAR(expected, population[0].mutancy, tolerance);
+    EXPECT_NEAR(expected, population[0].revive_prior, tolerance);
+    EXPECT_NEAR(expected, population[0].kill_prior, tolerance);
+}
+
 }  // namespace

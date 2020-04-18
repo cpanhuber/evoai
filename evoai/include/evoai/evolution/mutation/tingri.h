@@ -142,7 +142,7 @@ struct Tingri
     template <typename GraphType, typename Derived, typename RandomGenerator>
     void operator()(evoai::detail::Specimen<GraphType, Properties>& specimen,
                     MatrixBase<Derived> const& accumulated_activations,
-                    RandomGenerator& generator)
+                    RandomGenerator& generator) const
     {
         auto weight_mutation_factors = detail::CreateWeightMutationFactors(accumulated_activations, specimen.mutancy);
         detail::MutateAdjacency(specimen.adjacency, weight_mutation_factors);

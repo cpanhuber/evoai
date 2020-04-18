@@ -132,6 +132,20 @@ std::tuple<Population<GraphType, Properties>, ActivationSummary<GraphType::k_tot
     return {population_out, activations_out};
 }
 
+template <typename GraphType, typename MutationStrategy, typename GeneratorType>
+void Mutate(Population<GraphType, typename MutationStrategy::Properties>& population,
+            MutationStrategy const& strategy,
+            ActivationSummary<GraphType::k_total_neurons> const& activation_summary,
+            GeneratorType& generator)
+{
+    for (IndexType i = 0; i < static_cast<ValueType>(population.size()); ++i)
+    {
+        auto& specimen = population[i];
+        auto const& activations = activation_summary[i];
+        strategy(specimen, activations, generator);
+    }
+}
+
 }  // namespace detail
 
 }  // namespace evoai
