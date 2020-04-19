@@ -16,6 +16,14 @@ cc_library(
     copts = ["-Wall", "-Werror", "--pedantic"],
     strip_include_prefix = "include/",
 )
+
+cc_binary(
+    name = "xor",
+    srcs = ["src/examples/xor.cpp"],
+    deps = [":evoai_lib"],
+    copts = ["-Wall", "-Werror", "--pedantic"],
+)
+
 cc_test(
     name = "evoai_spec",
     srcs = glob(["test/*.cpp", "test/**/*.h"]),
