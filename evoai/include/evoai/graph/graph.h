@@ -2,6 +2,8 @@
 #define EVOAI__GRAPH__GRAPH_H
 
 #include <evoai/common/types.h>
+#include <evoai/graph/activation/relu.h>
+#include <evoai/graph/activation/softmax.h>
 #include <evoai/graph/aggregation/accumulator.h>
 #include <evoai/graph/aggregation/counter.h>
 
@@ -213,6 +215,15 @@ class NeuralGraph : public GraphTraits<InputN,
   private:
     typename Traits::AdjacencyType adjacency_matrix_;
 };
+
+template <IndexType InputN, IndexType OutputN, IndexType HiddenN, IndexType ForwardIterations = 2>
+using ClassificationGraph = NeuralGraph<InputN,
+                                        OutputN,
+                                        HiddenN,
+                                        ForwardIterations,
+                                        activation::RelU,
+                                        aggregation::Accumulator,
+                                        activation::Softmax>;
 
 }  // namespace evoai
 
