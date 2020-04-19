@@ -2,10 +2,13 @@
 #define EVOAI__EVOLUTION__EVOLUTION_H
 
 #include <evoai/common/types.h>
+#include <evoai/evolution/mutation/tingri.h>
 #include <evoai/evolution/population.h>
 #include <evoai/graph/aggregation/accumulator.h>
 #include <evoai/graph/graph.h>
 
+#include <cassert>
+#include <iostream>
 #include <numeric>
 
 namespace evoai
@@ -177,6 +180,66 @@ Population<GraphType, typename MutationStrategy::Properties> Evolve(
 }
 
 }  // namespace detail
+
+template <typename GraphType,
+          typename Loss,
+          typename MutationStrategy = mutation::Tingri,
+          typename RandomGenerator = std::default_random_engine>
+struct Evolution
+{
+    GraphType Evolve(std::vector<Vector<GraphType::k_input_neurons>> const& input,
+                     std::vector<Vector<GraphType::k_output_neurons>> const& truth,
+                     bool verbose = false)
+    {
+        assert(input.size() == truth.size());
+
+        std::vector<IndexType> indices;
+        indices.resize(input.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::shuffle(indices.begin(), indices.end(), generator);
+
+        IndexType index = 0;
+        if (verbose)
+        {
+            std::cout << "Creating Population..." << std::flush;
+        }
+        auto population = detail::CreatePopulation<GraphType>(population_size, strategy, generator);
+        if (verbose)
+        {
+            std::cout << "OK" << std::endl;
+        }
+
+        for (IndexType i = 0; i < iterations; ++i)
+        {
+            if (verbose)
+            {
+                std::cout << "\r" << (i + 1) << " / " << iterations << std::flush;
+            }
+            detail::Evolve<Loss>(population, strategy, input[indices[index]], truth[indices[index]], generator);
+            ++index;
+            if (index > static_cast<IndexType>(input.size()))
+            {
+                index = 0;
+            }
+        }
+
+        auto fittest_it =
+            std::max_element(population.begin(), population.end(), [](auto const& left, auto const& right) {
+                return left.fitness_score < right.fitness_score;
+            });
+
+        if (verbose)
+        {
+            std::cout << "\nDone" << std::endl;
+        }
+        return {fittest_it->adjacency};
+    }
+
+    IndexType population_size = 100;
+    IndexType iterations = 1000;
+    MutationStrategy strategy{};
+    RandomGenerator generator{1234};
+};
 
 }  // namespace evoai
 
