@@ -111,23 +111,31 @@ std::tuple<Population<GraphType, Properties>, ActivationSummary<GraphType::k_tot
     auto cummulative_sum_in = static_cast<ValueType>(0.0);
     auto cummulative_sum_out = select_interval;
 
-    while (out_index < static_cast<IndexType>(population_in.size()))
+    if (length < std::numeric_limits<ValueType>::min())
     {
-        if (cummulative_sum_in + fitness[in_index] >= cummulative_sum_out)
+        std::copy(population_in.begin(), population_in.end(), population_out.begin());
+        std::copy(activations_in.begin(), activations_in.end(), activations_out.begin());
+    }
+    else
+    {
+        while (out_index < static_cast<IndexType>(population_in.size()))
         {
-            population_out.push_back(population_in[in_index]);
-            population_out.back().fitness_score += fitness[in_index];
-            activations_out.push_back(activations_in[in_index]);
-            cummulative_sum_out += select_interval;
-            out_index++;
-        }
-        else
-        {
-            cummulative_sum_in += fitness[in_index];
-            in_index++;
-            if (in_index >= static_cast<IndexType>(population_in.size()))
+            if (cummulative_sum_in + fitness[in_index] >= cummulative_sum_out)
             {
-                in_index = 0;
+                population_out.push_back(population_in[in_index]);
+                population_out.back().fitness_score += fitness[in_index];
+                activations_out.push_back(activations_in[in_index]);
+                cummulative_sum_out += select_interval;
+                out_index++;
+            }
+            else
+            {
+                cummulative_sum_in += fitness[in_index];
+                in_index++;
+                if (in_index >= static_cast<IndexType>(population_in.size()))
+                {
+                    in_index = 0;
+                }
             }
         }
     }
