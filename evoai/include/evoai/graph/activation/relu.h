@@ -20,8 +20,8 @@ struct RelU : public detail::Activator
         return ((k * x).array() + d).cwiseMax(static_cast<ValueType>(0)).matrix();
     }
 
-    ValueType k = 1.0;
-    ValueType d = 0.0;
+    ValueType k = -2.0;
+    ValueType d = 1.0;
 };
 }  // namespace activation
 }  // namespace evoai
